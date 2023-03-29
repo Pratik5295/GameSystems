@@ -1,0 +1,14 @@
+{
+  "People": [
+    {
+      "FirstName": "Pratik",
+      "LastName": "Shringarpure",
+      "JobTitle": "Game Developer/Designer"
+    },
+    {
+      "FirstName": "Bruce",
+      "LastName": "Wayne",
+      "JobTitle": "Batman"
+    }
+  ]
+}
