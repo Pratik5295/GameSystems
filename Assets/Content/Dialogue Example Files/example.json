@@ -1,14 +1,12 @@
 {
-  "People": [
+  "Conversation": [
     {
-      "FirstName": "Pratik",
-      "LastName": "Shringarpure",
-      "JobTitle": "Game Developer/Designer"
+      "Name": "Pratik",
+      "Content": "Shringarpure"
     },
     {
-      "FirstName": "Bruce",
-      "LastName": "Wayne",
-      "JobTitle": "Batman"
+      "Name": "Bruce",
+      "Content": "Wayne"
     }
   ]
 }

@@ -12,7 +12,11 @@ public class JSONFileLauncher : MonoBehaviour
         JSONFileParser.SetFilePath(filePath);
         var text = JSONFileParser.ReadFile();
         var people = JSONFileParser.ReadPeople(text);
-
+        
+        foreach(var item in people.allMessages)
+        {
+            Debug.Log(item);
+        }
         
     }
 }

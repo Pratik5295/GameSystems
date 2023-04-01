@@ -7,17 +7,16 @@ using UnityEngine;
 
 namespace Pratik.DialogueSystem
 {
-    public class Person
+    public class Message
     {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string JobTitle { get; set; }
+        public string Name { get; set; }
+        public string Content { get; set; }
     }
 
-    public class People
+    public class Conversation
     {
         [JsonProperty("People")]
-        public List<Person> allPeople { get; set; }
+        public List<Message> allMessages { get; set; }
     }
 
     public static class JSONFileParser
@@ -36,9 +35,9 @@ namespace Pratik.DialogueSystem
             return text;
         }
 
-        public static People ReadPeople(string text)
+        public static Conversation ReadPeople(string text)
         {
-            var people = JsonConvert.DeserializeObject<People>(text,Converter.Settings); ;
+            var people = JsonConvert.DeserializeObject<Conversation>(text,Converter.Settings); ;
             return people;
         }
 
