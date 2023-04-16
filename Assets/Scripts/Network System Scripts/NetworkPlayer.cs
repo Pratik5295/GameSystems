@@ -1,16 +1,16 @@
 using UnityEngine;
 using Unity.Netcode;
 
-public enum State
+public enum TestState
 {
     GAME = 0,
     END = 1
 }
-public struct Move : INetworkSerializable
+public struct TestMove : INetworkSerializable
 {
     public int _int;
     public bool _bool;
-    public State gameState;
+    public TestState gameState;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
@@ -22,18 +22,18 @@ public struct Move : INetworkSerializable
 
 public class NetworkPlayer : NetworkBehaviour
 {
-    private NetworkVariable<Move> move = new NetworkVariable<Move>(
-        new Move
+    private NetworkVariable<TestMove> move = new NetworkVariable<TestMove>(
+        new TestMove
         {
             _int = 0,
             _bool = true,
-            gameState = State.GAME
+            gameState = TestState.GAME
         },NetworkVariableReadPermission.Everyone,NetworkVariableWritePermission.Owner);
 
-    private Move networkMove;
+    private TestMove networkMove;
     public override void OnNetworkSpawn()
     {
-        move.OnValueChanged += (Move previousMove, Move currentMove) =>
+        move.OnValueChanged += (TestMove previousMove, TestMove currentMove) =>
         {
             Debug.Log($"{OwnerClientId} Value: {currentMove._int} and {currentMove.gameState.ToString()}");
             networkMove._int = currentMove._int;
@@ -45,7 +45,7 @@ public class NetworkPlayer : NetworkBehaviour
 
     }
 
-    private void SetLocalValues(NetworkVariable<Move> _move)
+    private void SetLocalValues(NetworkVariable<TestMove> _move)
     {
         networkMove._int = _move.Value._int;
         networkMove._bool = _move.Value._bool;
@@ -58,11 +58,11 @@ public class NetworkPlayer : NetworkBehaviour
 
         if (Input.GetKeyDown(KeyCode.H))
         {
-            move.Value = new Move
+            move.Value = new TestMove
             {
                 _int = Random.Range(0, 100),
                 _bool = move.Value._bool,
-                gameState = move.Value.gameState == State.GAME ? State.END : State.GAME
+                gameState = move.Value.gameState == TestState.GAME ? TestState.END : TestState.GAME
             };
         }
 
@@ -73,7 +73,7 @@ public class NetworkPlayer : NetworkBehaviour
     }
 
     [ServerRpc]
-    public void TestServerRpc(Move move, string message)
+    public void TestServerRpc(TestMove move, string message)
     {
         Debug.Log($"{message} and more data: {move.gameState.ToString()}");
 
@@ -81,7 +81,7 @@ public class NetworkPlayer : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void TestClientRpc(Move move)
+    public void TestClientRpc(TestMove move)
     {
         Debug.Log($"{move.gameState.ToString()} received by all");
     }
