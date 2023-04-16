@@ -29,11 +29,34 @@ public class CameraController : MonoBehaviour
 
         if (Input.GetAxis("Mouse ScrollWheel") > 0f)
         {
-            vcam.m_Lens.FieldOfView--;
+            if(vcam.m_Lens.FieldOfView > minZoom)
+                vcam.m_Lens.FieldOfView--;
         }
         else if (Input.GetAxis("Mouse ScrollWheel") < 0f)
         {
-            vcam.m_Lens.FieldOfView++;
+            if(vcam.m_Lens.FieldOfView < maxZoom)
+                vcam.m_Lens.FieldOfView++;
         }
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            ResetToInitialRotation();
+        }
+
+        if (Input.GetKeyDown(KeyCode.N))
+        {
+            HideAnnotations();
+        }
+    }
+
+    public void ResetToInitialRotation()
+    {
+        vcam.transform.LookAt(Vector3.zero);
+        InfoUIManager.instance.ShowAnnotations();
+    }
+
+    public void HideAnnotations()
+    {
+        InfoUIManager.instance.HideAnnotations();
     }
 }
