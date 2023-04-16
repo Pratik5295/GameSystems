@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class ModelClick : MonoBehaviour
 {
+    [SerializeField] private int infoIndex;     //Info index to open in relation to Info Manager list
     private void Update()
     {
         if (Input.GetMouseButtonDown(0))
@@ -17,13 +18,19 @@ public class ModelClick : MonoBehaviour
         {
             if(hit.collider.tag == "Model")
             {
-                OnToggle();
+                OnToggle(infoIndex);
             }
         }
     }
 
-    private void OnToggle()
+    public void OnClickerClicked(int index)
     {
-        InfoUIManager.instance.OnModelClicked();
+        OnToggle(index);
+    }
+
+    private void OnToggle(int index = 0)
+    {
+        InfoUIManager.instance.HideAnnotations();
+        InfoUIManager.instance.OnModelClicked(index);
     }
 }

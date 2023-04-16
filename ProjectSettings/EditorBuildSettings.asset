@@ -8,7 +8,10 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Network_Example.unity
     guid: 36be41417e6ede248bc960ea23c59931
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Camera_Rotation_Example.unity
     guid: 04980fa4397177945bb666504f0f9aa0
+  - enabled: 1
+    path: Assets/Scenes/Epiblast_Red.unity
+    guid: e04b133f6706d74479862267c34abdf8
   m_configObjects: {}

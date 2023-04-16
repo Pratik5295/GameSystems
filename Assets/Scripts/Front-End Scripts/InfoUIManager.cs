@@ -5,6 +5,7 @@ public class InfoUIManager : MonoBehaviour
 {
     public static InfoUIManager instance;
     [SerializeField] private bool toggle = false;
+    [SerializeField] private bool showAll = false;
 
     [Header("UI to Show and Hide")]
     public List<GameObject> uiAnnotations = new List<GameObject>();
@@ -26,17 +27,20 @@ public class InfoUIManager : MonoBehaviour
         HideAnnotations();
     }
 
-    public void OnModelClicked()
+    public void OnModelClicked(int index)
     {
         toggle = !toggle;
-        OnToggleChanged();
+        OnToggleChanged(index);
     }
 
-    private void OnToggleChanged()
+    private void OnToggleChanged(int index = 0)
     {
         if (toggle)
         {
-            ShowAnnotations();
+            if (showAll)
+                ShowAnnotations();
+            else
+                ShowSpecificAnnotation(index);
         }
         else
         {
@@ -51,6 +55,15 @@ public class InfoUIManager : MonoBehaviour
             uiAnnote.gameObject.SetActive(true);
         }
         toggle = true;
+    }
+
+    public void ShowSpecificAnnotation(int index)
+    {
+        if (index < uiAnnotations.Count)
+        {
+            uiAnnotations[index].gameObject.SetActive(true);
+            toggle = true;
+        }
     }
 
     public void HideAnnotations()
