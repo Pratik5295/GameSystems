@@ -4,7 +4,7 @@ using UnityEngine;
 public class InfoUIManager : MonoBehaviour
 {
     public static InfoUIManager instance;
-
+    [SerializeField] private bool toggle = false;
 
     [Header("UI to Show and Hide")]
     public List<GameObject> uiAnnotations = new List<GameObject>();
@@ -26,12 +26,31 @@ public class InfoUIManager : MonoBehaviour
         HideAnnotations();
     }
 
+    public void OnModelClicked()
+    {
+        toggle = !toggle;
+        OnToggleChanged();
+    }
+
+    private void OnToggleChanged()
+    {
+        if (toggle)
+        {
+            ShowAnnotations();
+        }
+        else
+        {
+            HideAnnotations();
+        }
+    }
+
     public void ShowAnnotations()
     {
         foreach(var uiAnnote in uiAnnotations)
         {
             uiAnnote.gameObject.SetActive(true);
         }
+        toggle = true;
     }
 
     public void HideAnnotations()
@@ -40,5 +59,6 @@ public class InfoUIManager : MonoBehaviour
         {
             uiAnnote.gameObject.SetActive(false);
         }
+        toggle = false;
     }
 }

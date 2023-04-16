@@ -51,7 +51,6 @@ public class CameraController : MonoBehaviour
 
     public void ResetToInitialRotation()
     {
-        vcam.transform.LookAt(Vector3.zero);
         InfoUIManager.instance.ShowAnnotations();
     }
 
