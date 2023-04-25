@@ -16,7 +16,8 @@ public enum RESULT
 {
     DRAW = 0,
     PLAYER1WON = 1,
-    PLAYER2WON = 2
+    PLAYER2WON = 2,
+    RESTART = 3
 }
 
 public class RPSGameSystem : NetworkBehaviour
@@ -40,8 +41,6 @@ public class RPSGameSystem : NetworkBehaviour
     [SerializeField]
     public NetworkList<PlayerInformation> playersInfo;
 
-    public List<RPSNetworkPlayer> localPlayersData;
-
     [SerializeField] private NetworkVariable<RESULT> result;
 
     [SerializeField] private GameObject leftPos;
@@ -50,7 +49,15 @@ public class RPSGameSystem : NetworkBehaviour
 
     [SerializeField] private NetworkVariable<float> gameTime = new NetworkVariable<float>();
     public float GameTime = 0f;
+    public float maxGameTime;
+
+    public NetworkVariable<STATE> networkGameState = new NetworkVariable<STATE>();
     public STATE gameState;
+
+    public Action OnGameOverEvent;
+
+    public Action OnGameRestartedEvent;
+
 
     private void Awake()
     {
@@ -80,12 +87,48 @@ public class RPSGameSystem : NetworkBehaviour
 
         gameTime.Value = 0f;
         gameTime.OnValueChanged += OnUpdateGameTime;
+
+        networkGameState.OnValueChanged += OnNetworkGameStateChanged;
+
+        NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectionCallback;
     }
 
+    public override void OnDestroy()
+    {
+        if (NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnectionCallback;
+        }
 
+        if (IsServer)
+        {
+            playersInfo.OnListChanged -= OnServerListChanged;
+        }
+        if (IsClient)
+        {
+            playersInfo.OnListChanged -= OnClientListChanged;
+        }
+        base.OnDestroy();
+    }
+
+    private void OnClientConnectionCallback(ulong clientId)
+    {
+        Debug.Log("Connected client id is " + clientId);
+        FindLocalPlayersConnected();
+        foreach(var player in localPlayers)
+        {
+            Debug.Log($"We have {player.GetPlayerId()}");
+        }
+
+        if(localPlayers.Count == 2)
+        {
+            Debug.Log("Got both players starting with the game");
+            OverallGameManager.Instance.InGameState();
+        }
+    }
     void OnUpdateGameTime(float previous, float result)
     {
-
+        GameTime = result;
     }
     void OnResultDeclared(RESULT previous, RESULT current)
     {
@@ -95,6 +138,7 @@ public class RPSGameSystem : NetworkBehaviour
     void OnServerListChanged(NetworkListEvent<PlayerInformation> changeEvent)
     {
         Debug.Log($"[S] The list changed and now has {playersInfo.Count} elements");
+        Debug.Log($" [S] Server recieved the change: {changeEvent.Value.playerSessionId} and move {changeEvent.Value.playerMove}");
 
         DisplayPlayerInformation();
     }
@@ -102,6 +146,7 @@ public class RPSGameSystem : NetworkBehaviour
     void OnClientListChanged(NetworkListEvent<PlayerInformation> changeEvent)
     {
         Debug.Log($"[C] The list changed and now has {playersInfo.Count} elements");
+        Debug.Log($" [C] Client recieved the change: {changeEvent.Value.playerSessionId} and move {changeEvent.Value.playerMove}");
         DisplayPlayerInformation();
     }
 
@@ -134,7 +179,6 @@ public class RPSGameSystem : NetworkBehaviour
             }
         }
     }
-
     void DisplayPlayerInformation()
     {
         foreach (var player in playersInfo)
@@ -150,9 +194,9 @@ public class RPSGameSystem : NetworkBehaviour
         {
             if (gameState == STATE.INGAME)
             {
-                if (GameTime > 10f)
+                if (GameTime > maxGameTime)
                 {
-                    gameState = STATE.END;
+                    networkGameState.Value = STATE.END;
                     OnGameEnds();
                 }
                 GameTime += Time.deltaTime;
@@ -175,14 +219,14 @@ public class RPSGameSystem : NetworkBehaviour
 
     public void OnGameStart()
     {
-        gameState = STATE.INGAME;
+        networkGameState.Value = STATE.INGAME;
     }
 
     [ServerRpc]
     public void OnGameStartServerRPC()
     {
         Debug.Log("Starting game from client");
-        gameState = STATE.INGAME;
+        networkGameState.Value = STATE.INGAME;
     }
 
     public void OnGameEnds()
@@ -250,11 +294,16 @@ public class RPSGameSystem : NetworkBehaviour
     private void PrepareToSendGameOver()
     {
         OnGameOverSentToClientRPC(result.Value);
+        ShowEndGameUIServerRpc();
     }
 
     //Network Behavior Code
 
-
+    [ServerRpc]
+    private void ShowEndGameUIServerRpc()
+    {
+        UIManager.Instance.ShowServerObjects();
+    }
     /// <summary>
     /// Only server side can perform this check
     /// The server side will determine how many players are connected and add them all at once
@@ -283,24 +332,13 @@ public class RPSGameSystem : NetworkBehaviour
         Debug.Log("[S] Added player on server!");
     }
 
-    //Just add me to server's copy of player info
-    public void AddPlayerToData(RPSNetworkPlayer player)
-    {
-        if (IsServer)
-        {
-            if (!localPlayersData.Contains(player))
-                localPlayersData.Add( player);
-        }
-    }
-
     [ServerRpc(RequireOwnership = false)]
     public void OnPlayerMoveSentToServerRPC(MOVE playerMove, ServerRpcParams serverRpcParams = default)
     {
         Debug.Log($"[S] received response {playerMove.ToString()}");
         var senderClientId = serverRpcParams.Receive.SenderClientId;
         MoveSentByPlayer(senderClientId, playerMove);
-
-        OnPlayerMoveReceivedClientRpc(senderClientId,playerMove);
+        OnPlayerMoveReceivedClientRpc(senderClientId, playerMove);
     }
 
 
@@ -308,12 +346,14 @@ public class RPSGameSystem : NetworkBehaviour
     [ClientRpc]
     public void OnPlayerMoveReceivedClientRpc(ulong senderId, MOVE playerMove)
     {
-        Debug.Log($"[C]Input received from player {senderId} and {playerMove}");
+        
     }
+
 
     [ClientRpc]
     public void OnGameOverSentToClientRPC(RESULT result)
     {
+        OnGameOverEvent?.Invoke();
         UIManager.Instance.SetHeaderText("Game Over: ", result);
     }
 
@@ -345,6 +385,25 @@ public class RPSGameSystem : NetworkBehaviour
         foreach (var clientId in clientIdList)
         {
             Debug.Log($"{clientId} is the ClientID who connected");
+        }
+    }
+
+    private void OnNetworkGameStateChanged(STATE previous,STATE current)
+    {
+        gameState = current;
+    }
+
+    //UI Manager methods
+    public void RestartGame()
+    {
+        OnGameRestartedEvent?.Invoke();
+        
+        UIManager.Instance.SetHeaderText("", RESULT.RESTART);
+        if (IsServer)
+        {
+            //Restart the timer to max timer;
+            gameTime.Value = 0f;
+            OnGameStart();
         }
     }
 

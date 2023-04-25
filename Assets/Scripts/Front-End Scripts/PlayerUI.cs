@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,6 +8,10 @@ public class PlayerUI : MonoBehaviour
     //Options will be hidden if not local player
     public GameObject playerOptionsParent;
 
+    [Header("Reference to the text displaying player Move")]
+    [SerializeField]
+    private TextMeshProUGUI moveText;
+
     [Header("Player choices")]
     //Player Button options : Rock, Paper, Scissors respectively for A,B,C
     public Button optionA;
@@ -14,6 +19,11 @@ public class PlayerUI : MonoBehaviour
     public Button optionC;
 
     [SerializeField] private RPSNetworkPlayer player;
+
+    public void SetMoveText(string move)
+    {
+        moveText.text = move;
+    }
     public void OnOptionASelected()
     {
         if(player.IsOwner)

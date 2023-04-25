@@ -69,8 +69,44 @@ public class RPSNetworkPlayer : NetworkBehaviour
             LocalPlayerData.Instance.SetPlayerID(playerID);
         }
             playerUI.HideChoices();
+
+        OverallGameManager.Instance.onGameStateAction += IsGameRunning;
+
+        if(gameSystem != null)
+        {
+            gameSystem.OnGameOverEvent += OnPlayerMoveResponseEventHandler;
+
+            gameSystem.networkGameState.OnValueChanged += OnGameRestartedEventHandler;
+        }
         
     }
+
+    public override void OnDestroy()
+    {
+        OverallGameManager.Instance.onGameStateAction -= IsGameRunning;
+        gameSystem.OnGameOverEvent -= OnPlayerMoveResponseEventHandler;
+
+        gameSystem.networkGameState.OnValueChanged -= OnGameRestartedEventHandler;
+        base.OnDestroy();
+    }
+
+    private void IsGameRunning(GAMESTATE state)
+    {
+        if(state == GAMESTATE.INGAME)
+        {
+            StartGame();
+        }
+    }
+
+    private void OnPlayerMoveResponseEventHandler()
+    {
+        if (!IsOwner)
+        {
+            //If local player is not the owner of the object, i.e its the opponent
+            UpdateOpponentMoveUIText();
+        }
+    }
+
 
     public ulong GetPlayerId()
     {
@@ -79,6 +115,13 @@ public class RPSNetworkPlayer : NetworkBehaviour
     private void SetLocalValue(MOVE moveFromNetwork)
     {
         playerMove = moveFromNetwork;
+        Debug.Log($"Setting local move info for {playerID} and Network Move: {moveFromNetwork.ToString()}");
+
+        if (IsOwner)
+        {
+            //For owner, show the move selected at the time of selection
+            SetMoveUIText(playerMove);
+        }
     }
 
     private void Update()
@@ -111,10 +154,37 @@ public class RPSNetworkPlayer : NetworkBehaviour
         }
     }
 
+    public void SetMove(MOVE playerMove)
+    {
+        SetMoveUIText(playerMove);
+    }
+    public void SetMoveUIText(MOVE playerMove)
+    {
+        if (IsOwner)
+        {
+            playerUI.SetMoveText($"You have selected {playerMove.ToString()}");
+        }
+    }
+
+    public void UpdateOpponentMoveUIText()
+    {
+        if (!IsOwner)
+        {
+            playerUI.SetMoveText($"Opponent has selected {playerMove.ToString()}");
+        }
+    }
     public void MoveSelected(MOVE _playerMove)
     {
         OnPlayerDecided();
         gameSystem.OnPlayerMoveSentToServerRPC(_playerMove);
+        OnPlayerMoveSentToServerRPC(_playerMove);
+    }
+
+
+    [ServerRpc(RequireOwnership = false)]
+    public void OnPlayerMoveSentToServerRPC(MOVE playerMove, ServerRpcParams serverRpcParams = default)
+    {
+        NetworkMove.Value = playerMove;
     }
 
     private void SetState(PLAYERSTATE _state)
@@ -125,15 +195,17 @@ public class RPSNetworkPlayer : NetworkBehaviour
     public void StartGame()
     {
         SetState(PLAYERSTATE.DECIDING);
-
-
-        gameSystem.AddPlayerToData(this);
         gameSystem.FindLocalPlayersConnected();
         gameSystem.AddPlayerToDictionaryServerRpc(playerID, MOVE.NONE);
 
-        if(IsOwner)
-            playerUI.ShowChoices();
+        ShowPlayerChoices();
 
+    }
+
+    private void ShowPlayerChoices()
+    {
+        if (IsOwner)
+            playerUI.ShowChoices();
     }
 
     public void OnPlayerDecided()
@@ -146,4 +218,15 @@ public class RPSNetworkPlayer : NetworkBehaviour
         SetState(PLAYERSTATE.WAITING);
     }
 
+
+    private void OnGameRestartedEventHandler(RPSGameSystem.STATE previous, RPSGameSystem.STATE current)
+    {
+        if (current == RPSGameSystem.STATE.INGAME)
+        {
+            MoveSelected(MOVE.NONE);
+            SetState(PLAYERSTATE.DECIDING);
+            ShowPlayerChoices();
+            playerUI.SetMoveText("");
+        }
+    }
 }

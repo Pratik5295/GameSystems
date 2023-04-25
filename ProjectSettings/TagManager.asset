@@ -6,6 +6,9 @@ TagManager:
   tags:
   - RPS
   - Model
+  - ModelK
+  - ModelP
+  - ModelE
   layers:
   - Default
   - TransparentFX

@@ -3,6 +3,10 @@ using UnityEngine;
 public class ModelClick : MonoBehaviour
 {
     [SerializeField] private int infoIndex;     //Info index to open in relation to Info Manager list
+
+    [SerializeField] private bool separateClickers = false;
+
+    [SerializeField] private int kIndex, pIndex, eIndex;
     private void Update()
     {
         if (Input.GetMouseButtonDown(0))
@@ -16,9 +20,28 @@ public class ModelClick : MonoBehaviour
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out hit, Mathf.Infinity))
         {
-            if(hit.collider.tag == "Model")
+            Debug.Log($"Hit: {hit.collider.gameObject.name}");
+            if (!separateClickers)
             {
-                OnToggle(infoIndex);
+                if (hit.collider.tag == "Model")
+                {
+                    OnToggle(infoIndex);
+                }
+            }
+            else
+            {
+                if(hit.collider.tag == "ModelK")
+                {
+                    OnToggle(kIndex);
+                }
+                else if(hit.collider.tag == "ModelP")
+                {
+                    OnToggle(pIndex);
+                }
+                else if(hit.collider.tag == "ModelE")
+                {
+                    OnToggle(eIndex);
+                }
             }
         }
     }

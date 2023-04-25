@@ -79,12 +79,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   localPlayers: []
-  localPlayersData: []
   result:
     m_InternalValue: 0
   leftPos: {fileID: 7843668656112188688}
   rightPos: {fileID: 3172984320246942401}
+  gameTime:
+    m_InternalValue: 0
   GameTime: 0
+  maxGameTime: 10
   gameState: 0
 --- !u!114 &6486376941233926930
 MonoBehaviour:

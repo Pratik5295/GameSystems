@@ -1,11 +1,18 @@
 using UnityEngine;
 using TMPro;
+using Unity.Netcode;
+using System.Collections.Generic;
 
-public class UIManager : MonoBehaviour
+[DefaultExecutionOrder(2)]
+public class UIManager : NetworkBehaviour
 {
     public static UIManager Instance = null;
 
-    [SerializeField] private TextMeshProUGUI text1; 
+    [Header("Common UI elements")]
+    [SerializeField] private TextMeshProUGUI text1;
+
+    [Header("Server Only UI elements")]
+    [SerializeField] private List<GameObject> serverOnlyElements;
 
     private void Awake()
     {
@@ -16,6 +23,41 @@ public class UIManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
+        }
+
+        
+    }
+
+    private void Start()
+    {
+        HideServerObjects();
+    }
+
+    private void HideServerObjects()
+    {
+        if (!OverallGameManager.Instance.isCreator)
+        {
+            foreach(GameObject obj in serverOnlyElements)
+            {
+                obj.SetActive(false);
+            }
+        }
+        else
+        {
+            foreach (GameObject obj in serverOnlyElements)
+            {
+                obj.SetActive(true);
+            }
+        }
+    }
+
+    public void ShowServerObjects()
+    {
+        if (!OverallGameManager.Instance.isCreator) return;
+
+        foreach (GameObject obj in serverOnlyElements)
+        {
+            obj.SetActive(true);
         }
     }
 
@@ -50,14 +92,21 @@ public class UIManager : MonoBehaviour
         }
         else if (gameResult == RESULT.DRAW)
         {
-            if (LocalPlayerData.Instance.GetPlayerID() == 0)
-            {
-                SetText(text1, MetaStringConstants.DRAWTEXT);
-            }
-            else if (LocalPlayerData.Instance.GetPlayerID() == 1)
-            {
+            SetText(text1, MetaStringConstants.DRAWTEXT);
+        }
+        else if(gameResult == RESULT.RESTART)
+        {
+            SetText(text1, "");
+        }
+    }
 
-            }
+    public void RestartGame()
+    {
+        RPSGameSystem.instance.RestartGame();
+
+        foreach (GameObject obj in serverOnlyElements)
+        {
+            obj.SetActive(false);
         }
     }
 }
