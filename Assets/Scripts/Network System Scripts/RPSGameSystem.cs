@@ -45,6 +45,7 @@ public class RPSGameSystem : NetworkBehaviour
 
     [SerializeField] private GameObject leftPos;
     [SerializeField] private GameObject rightPos;
+    [SerializeField] private GameObject canvas;
 
 
     [SerializeField] private NetworkVariable<float> gameTime = new NetworkVariable<float>();
@@ -177,6 +178,8 @@ public class RPSGameSystem : NetworkBehaviour
                 //Set at right position
                 player.gameObject.transform.position = rightPos.transform.position;
             }
+
+            player.gameObject.transform.SetParent(canvas.transform);
         }
     }
     void DisplayPlayerInformation()

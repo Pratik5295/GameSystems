@@ -12,6 +12,10 @@ public class PlayerUI : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI moveText;
 
+    [Header("Reference to the text displaying Player Name")]
+    [SerializeField]
+    private TextMeshProUGUI playerNameText;
+
     [Header("Player choices")]
     //Player Button options : Rock, Paper, Scissors respectively for A,B,C
     public Button optionA;
@@ -20,6 +24,10 @@ public class PlayerUI : MonoBehaviour
 
     [SerializeField] private RPSNetworkPlayer player;
 
+    public void SetPlayerNameText(string name)
+    {
+        playerNameText.text = name;
+    }
     public void SetMoveText(string move)
     {
         moveText.text = move;

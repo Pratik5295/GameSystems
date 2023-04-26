@@ -1,3 +1,4 @@
+using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -29,6 +30,29 @@ public struct PlayerInformation : INetworkSerializable, System.IEquatable<Player
     }
 }
 
+public struct PlayerName : INetworkSerializable, System.IEquatable<PlayerName>
+{
+    public string name;
+    public bool Equals(PlayerName other)
+    {
+        return name == other.name;
+    }
+
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        if (serializer.IsReader)
+        {
+            var reader = serializer.GetFastBufferReader();
+            reader.ReadValueSafe(out name);
+        }
+        else
+        {
+            var writer = serializer.GetFastBufferWriter();
+            writer.WriteValueSafe(name);
+        }
+    }
+}
+
 public class RPSNetworkPlayer : NetworkBehaviour
 {
     public enum PLAYERSTATE
@@ -51,6 +75,12 @@ public class RPSNetworkPlayer : NetworkBehaviour
 
     [SerializeField] private PlayerUI playerUI;
 
+    //Player Name Network Variable
+    public NetworkVariable<FixedString64Bytes> playerName = new NetworkVariable<FixedString64Bytes>();
+
+    public string showPlayerName;
+
+
     public override void OnNetworkSpawn()
     {
         playerID = OwnerClientId;
@@ -62,11 +92,28 @@ public class RPSNetworkPlayer : NetworkBehaviour
             SetLocalValue(currentValue);
         };
 
-        gameSystem = RPSGameSystem.instance;
+        playerName.OnValueChanged += (FixedString64Bytes previousValue, FixedString64Bytes currentValue) =>
+        {
+            playerUI.SetPlayerNameText(currentValue.ToString());
+        };
 
+
+        gameSystem = RPSGameSystem.instance;
+        showPlayerName = LocalPlayerData.Instance.GetPlayerName();
         if (IsOwner)
         {
             LocalPlayerData.Instance.SetPlayerID(playerID);
+           
+
+            if (IsServer)
+            {
+                playerName.Value = showPlayerName;
+            }
+            else
+            {
+                SetPlayerNameServerRpc(showPlayerName);
+            }
+
         }
             playerUI.HideChoices();
 
@@ -78,7 +125,8 @@ public class RPSNetworkPlayer : NetworkBehaviour
 
             gameSystem.networkGameState.OnValueChanged += OnGameRestartedEventHandler;
         }
-        
+
+        playerUI.SetPlayerNameText(playerName.Value.ToString());
     }
 
     public override void OnDestroy()
@@ -228,5 +276,12 @@ public class RPSNetworkPlayer : NetworkBehaviour
             ShowPlayerChoices();
             playerUI.SetMoveText("");
         }
+    }
+
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SetPlayerNameServerRpc(string _name)
+    {
+        playerName.Value = _name;
     }
 }
