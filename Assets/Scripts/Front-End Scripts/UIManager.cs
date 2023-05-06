@@ -9,10 +9,18 @@ public class UIManager : NetworkBehaviour
     public static UIManager Instance = null;
 
     [Header("Common UI elements")]
-    [SerializeField] private TextMeshProUGUI text1;
+    [SerializeField] private TextMeshProUGUI gameOverText;
+    [SerializeField] private TextMeshProUGUI timerText;
 
     [Header("Server Only UI elements")]
     [SerializeField] private List<GameObject> serverOnlyElements;
+
+
+    [Header("Create Lobby Object")]
+    [SerializeField] private GameObject createObject;
+
+    [Header("Join Lobby Object")]
+    [SerializeField] private GameObject joinObject;
 
     private void Awake()
     {
@@ -61,6 +69,10 @@ public class UIManager : NetworkBehaviour
         }
     }
 
+    public void SetTimerText(int time)
+    {
+        SetText(timerText, time.ToString());
+    }
     private void SetText(TextMeshProUGUI text, string message)
     {
         text.text = message;
@@ -72,31 +84,31 @@ public class UIManager : NetworkBehaviour
         {
             if (LocalPlayerData.Instance.GetPlayerID() == 0)
             {
-                SetText(text1, MetaStringConstants.VICTORYTEXT);
+                SetText(gameOverText, MetaStringConstants.VICTORYTEXT);
             }
             else if (LocalPlayerData.Instance.GetPlayerID() == 1)
             {
-                SetText(text1, MetaStringConstants.LOSSTEXT);
+                SetText(gameOverText, MetaStringConstants.LOSSTEXT);
             }
         }
         else if (gameResult == RESULT.PLAYER2WON)
         {
             if (LocalPlayerData.Instance.GetPlayerID() == 0)
             {
-                SetText(text1, MetaStringConstants.LOSSTEXT);
+                SetText(gameOverText, MetaStringConstants.LOSSTEXT);
             }
             else if (LocalPlayerData.Instance.GetPlayerID() == 1)
             {
-                SetText(text1, MetaStringConstants.VICTORYTEXT);
+                SetText(gameOverText, MetaStringConstants.VICTORYTEXT);
             }
         }
         else if (gameResult == RESULT.DRAW)
         {
-            SetText(text1, MetaStringConstants.DRAWTEXT);
+            SetText(gameOverText, MetaStringConstants.DRAWTEXT);
         }
         else if(gameResult == RESULT.RESTART)
         {
-            SetText(text1, "");
+            SetText(gameOverText, "");
         }
     }
 
@@ -108,5 +120,17 @@ public class UIManager : NetworkBehaviour
         {
             obj.SetActive(false);
         }
+    }
+
+    public void ShowJoinLobbyObjects()
+    {
+        createObject.SetActive(false);
+        joinObject.SetActive(true);
+    }
+
+    public void ShowCreateLobbyObjects()
+    {
+        createObject.SetActive(true);
+        joinObject.SetActive(false);
     }
 }

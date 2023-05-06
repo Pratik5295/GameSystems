@@ -132,7 +132,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2319721085820074626, guid: 2f8144288aa3bd34b857d0f2ffb33661, type: 3}
       propertyPath: m_text
-      value: Placeholder, to be added later
+      value: Overexpression
       objectReference: {fileID: 0}
     - target: {fileID: 2319721085820074626, guid: 2f8144288aa3bd34b857d0f2ffb33661, type: 3}
       propertyPath: m_fontSize
@@ -973,6 +973,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   infoIndex: 2
+  separateClickers: 0
+  kIndex: 0
+  pIndex: 0
+  eIndex: 0
 --- !u!4 &1429070311
 Transform:
   m_ObjectHideFlags: 0
@@ -1701,14 +1705,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.868, g: 0.61950874, b: 0.70199484, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: c82eccf11f0c8174fac28fd01a6f24a1, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1751,7 +1755,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 6d08f2db9ae639646bb264e4a3883a7b, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4.3
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 6d08f2db9ae639646bb264e4a3883a7b, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1759,7 +1763,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 6d08f2db9ae639646bb264e4a3883a7b, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 5.7
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 6d08f2db9ae639646bb264e4a3883a7b, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1767,15 +1771,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 6d08f2db9ae639646bb264e4a3883a7b, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 6d08f2db9ae639646bb264e4a3883a7b, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 6d08f2db9ae639646bb264e4a3883a7b, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 6d08f2db9ae639646bb264e4a3883a7b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -1809,6 +1813,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Model
       objectReference: {fileID: 0}
+    - target: {fileID: 5226077331668768111, guid: 6d08f2db9ae639646bb264e4a3883a7b, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 211195e7edd08a24094a41156bd765c0, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6d08f2db9ae639646bb264e4a3883a7b, type: 3}
 --- !u!4 &1773676752 stripped

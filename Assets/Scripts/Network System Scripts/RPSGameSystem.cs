@@ -92,6 +92,8 @@ public class RPSGameSystem : NetworkBehaviour
         networkGameState.OnValueChanged += OnNetworkGameStateChanged;
 
         NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectionCallback;
+
+        NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnectedCallback;
     }
 
     public override void OnDestroy()
@@ -99,6 +101,7 @@ public class RPSGameSystem : NetworkBehaviour
         if (NetworkManager.Singleton != null)
         {
             NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnectionCallback;
+            NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnectedCallback;
         }
 
         if (IsServer)
@@ -112,14 +115,15 @@ public class RPSGameSystem : NetworkBehaviour
         base.OnDestroy();
     }
 
+    private void OnClientDisconnectedCallback(ulong clientId)
+    {
+        ErrorManager.instance.PopErrorMessage("Client has been disconnected");
+    }
+
     private void OnClientConnectionCallback(ulong clientId)
     {
         Debug.Log("Connected client id is " + clientId);
         FindLocalPlayersConnected();
-        foreach(var player in localPlayers)
-        {
-            Debug.Log($"We have {player.GetPlayerId()}");
-        }
 
         if(localPlayers.Count == 2)
         {
@@ -130,6 +134,8 @@ public class RPSGameSystem : NetworkBehaviour
     void OnUpdateGameTime(float previous, float result)
     {
         GameTime = result;
+        float timeRemaining = (maxGameTime - result);
+        UIManager.Instance.SetTimerText((int)timeRemaining);
     }
     void OnResultDeclared(RESULT previous, RESULT current)
     {
@@ -159,6 +165,8 @@ public class RPSGameSystem : NetworkBehaviour
         {
             if(!localPlayers.Contains(player.GetComponent<RPSNetworkPlayer>()))
                 localPlayers.Add(player.GetComponent<RPSNetworkPlayer>());
+
+            player.gameObject.SetActive(false);
         }
         SetPlayersPosition();
     }
@@ -180,6 +188,11 @@ public class RPSGameSystem : NetworkBehaviour
             }
 
             player.gameObject.transform.SetParent(canvas.transform);
+
+            if(localPlayers.Count == 2)
+            {
+                player.gameObject.SetActive(true);
+            }
         }
     }
     void DisplayPlayerInformation()

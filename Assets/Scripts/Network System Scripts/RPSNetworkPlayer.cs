@@ -163,12 +163,13 @@ public class RPSNetworkPlayer : NetworkBehaviour
     private void SetLocalValue(MOVE moveFromNetwork)
     {
         playerMove = moveFromNetwork;
-        Debug.Log($"Setting local move info for {playerID} and Network Move: {moveFromNetwork.ToString()}");
-
-        if (IsOwner)
+       
+        if (IsLocalPlayer)
         {
             //For owner, show the move selected at the time of selection
             SetMoveUIText(playerMove);
+            Debug.Log($"Setting local move info for {playerID} and Network Move: {moveFromNetwork.ToString()} because its the local player");
+
         }
     }
 
@@ -202,23 +203,21 @@ public class RPSNetworkPlayer : NetworkBehaviour
         }
     }
 
-    public void SetMove(MOVE playerMove)
-    {
-        SetMoveUIText(playerMove);
-    }
     public void SetMoveUIText(MOVE playerMove)
     {
-        if (IsOwner)
+        if (IsLocalPlayer)
         {
             playerUI.SetMoveText($"You have selected {playerMove.ToString()}");
+            playerUI.SetAnimationState(playerMove);
         }
     }
 
     public void UpdateOpponentMoveUIText()
     {
-        if (!IsOwner)
+        if (!IsLocalPlayer)
         {
             playerUI.SetMoveText($"Opponent has selected {playerMove.ToString()}");
+            playerUI.SetAnimationState(playerMove);
         }
     }
     public void MoveSelected(MOVE _playerMove)
@@ -275,6 +274,7 @@ public class RPSNetworkPlayer : NetworkBehaviour
             SetState(PLAYERSTATE.DECIDING);
             ShowPlayerChoices();
             playerUI.SetMoveText("");
+            playerUI.SetAnimationState(MOVE.NONE);
         }
     }
 

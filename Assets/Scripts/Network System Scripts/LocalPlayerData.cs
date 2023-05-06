@@ -45,7 +45,11 @@ public class LocalPlayerData : MonoBehaviour
 
     public void SavePlayerName()
     {
-        if (string.IsNullOrEmpty(playerNameInput.text)) return;
+        if (string.IsNullOrEmpty(playerNameInput.text)) 
+        {
+            ErrorManager.instance.PopErrorMessage("Player Name cannot be empty");
+            return; 
+        }
 
         playerName = playerNameInput.text;
         OnPlayerCreated();

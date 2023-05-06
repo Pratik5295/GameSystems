@@ -31,7 +31,7 @@ public class TestRelay : MonoBehaviour
 
                     string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
                     Debug.Log("Allocation code is: " + joinCode);
-                    showRelayText.text = $"Join code for relay is {joinCode}";
+                    showRelayText.text = $"Lobby join code is {joinCode}";
                     hasRelay = true;
 
                         NetworkManager.Singleton.GetComponent<UnityTransport>().SetHostRelayData(
@@ -55,8 +55,11 @@ public class TestRelay : MonoBehaviour
     public void JoinRelayWithCode()
     {
         string code = relayCodeInput.text;
-        if (string.IsNullOrEmpty(code)) return;
-
+        if (string.IsNullOrEmpty(code))
+        {
+            ErrorManager.instance.PopErrorMessage("Relay code cannot be empty");
+            return;
+        }
         JoinRelay(code);
     }
     private async void JoinRelay(string joinCode)
@@ -82,6 +85,7 @@ public class TestRelay : MonoBehaviour
         }
         catch(RelayServiceException e)
         {
+            ErrorManager.instance.PopErrorMessage($"Entered Relay Error is incorrect");
             Debug.Log(e);
         }
     }

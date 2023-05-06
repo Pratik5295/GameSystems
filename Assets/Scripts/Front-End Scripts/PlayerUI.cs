@@ -12,6 +12,10 @@ public class PlayerUI : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI moveText;
 
+    [Header("Reference to the image animator on the player")]
+    [SerializeField] private Animator animator;
+    private const string PARAM_STATE = "State";
+
     [Header("Reference to the text displaying Player Name")]
     [SerializeField]
     private TextMeshProUGUI playerNameText;
@@ -58,5 +62,15 @@ public class PlayerUI : MonoBehaviour
     public void HideChoices()
     {
         playerOptionsParent.SetActive(false);
+    }
+
+
+    //Change animations
+
+    public void SetAnimationState(MOVE playerMove)
+    {
+        int value = Animator.StringToHash(PARAM_STATE);
+
+        animator.SetInteger(value, (int)playerMove);
     }
 }
