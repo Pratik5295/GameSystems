@@ -220,6 +220,11 @@ public class RPSGameSystem : NetworkBehaviour
                 gameTime.Value += Time.deltaTime;
             }
         }
+
+        if(localPlayers.Count == 2)
+        {
+            SetPlayersPosition();
+        }
     }
     public void MoveSentByPlayer(ulong clientID,MOVE playerMove)
     {

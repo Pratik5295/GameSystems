@@ -9,6 +9,7 @@ TagManager:
   - ModelK
   - ModelP
   - ModelE
+  - CinemachineTarget
   layers:
   - Default
   - TransparentFX
@@ -16,7 +17,7 @@ TagManager:
   - 
   - Water
   - UI
-  - 
+  - PostProcess
   - 
   - 
   - 
